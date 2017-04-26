@@ -1,9 +1,11 @@
-package com.vectron.barcodescanner;
+package com.vectron.barcodescanner.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity {
+import com.vectron.barcodescanner.R;
+
+public class ScannerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
