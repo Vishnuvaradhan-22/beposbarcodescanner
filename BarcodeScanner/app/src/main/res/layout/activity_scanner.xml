@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.vectron.barcodescanner.ui.ScannerActivity">
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?actionBarSize"
+        android:id="@+id/action_menu_bar"
+        android:background="@color/colorPrimaryDark">
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/action_menu_bar">
+
+        <ImageView
+            android:layout_width="250sp"
+            android:layout_height="250sp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/barcode"
+            android:layout_marginTop="60sp"
+            android:id="@+id/imageView" />
+
+        <Button
+            android:layout_width="100sp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Scan"
+            android:textColor="#ffffff"
+            android:layout_marginTop="20sp"
+            android:textSize="20sp"
+            android:background="@color/colorPrimaryDark"
+            android:id="@+id/btn_scan" />
+    </LinearLayout>
+
+</RelativeLayout>

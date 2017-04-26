@@ -3,4 +3,5 @@
     <string name="save_config">Save</string>
     <string name="printer_hint">Printer Bluetooth Address</string>
     <string name="api_hint">API/IP Address</string>
+    <string name="menu_title">Configure</string>
 </resources>
