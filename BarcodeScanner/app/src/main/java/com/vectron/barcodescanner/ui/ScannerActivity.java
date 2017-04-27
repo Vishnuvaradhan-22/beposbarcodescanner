@@ -29,6 +29,7 @@ public class ScannerActivity extends AppCompatActivity {
     private void initializeUi(){
         Toolbar toolbar = (Toolbar)findViewById(R.id.action_menu_bar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         scanButton = (Button)findViewById(R.id.btn_scan);
         scanButton.setOnClickListener(scanButtonListener);

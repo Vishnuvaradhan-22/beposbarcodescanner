@@ -17,5 +17,7 @@
         </activity>
         <activity android:name=".ui.ConfigurationActivity" />
     </application>
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+
 
 </manifest>

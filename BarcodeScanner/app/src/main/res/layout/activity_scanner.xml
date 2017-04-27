@@ -10,10 +10,21 @@
         android:minHeight="?actionBarSize"
         android:id="@+id/action_menu_bar"
         android:background="@color/colorPrimaryDark">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textColor="#ffffff"
+            android:layout_gravity="center"
+            android:id="@+id/textView" />
     </android.support.v7.widget.Toolbar>
+
 
     <LinearLayout
         android:orientation="vertical"
+        android:id="@+id/ll_scanner_parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/action_menu_bar">
@@ -36,6 +47,15 @@
             android:textSize="20sp"
             android:background="@color/colorPrimaryDark"
             android:id="@+id/btn_scan" />
-    </LinearLayout>
 
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/footer_note"
+        android:textSize="18sp"
+        android:layout_marginBottom="6sp"
+        android:layout_alignBottom="@id/ll_scanner_parent"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/tv_footer_note" />
 </RelativeLayout>

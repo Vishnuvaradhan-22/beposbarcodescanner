@@ -2,6 +2,7 @@ package com.vectron.barcodescanner.ui;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -10,6 +11,7 @@ import android.widget.Spinner;
 
 import com.vectron.barcodescanner.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConfigurationActivity extends AppCompatActivity {
@@ -33,9 +35,16 @@ public class ConfigurationActivity extends AppCompatActivity {
     }
 
     private void initializeUi(){
+        Toolbar toolbar = (Toolbar)findViewById(R.id.action_menu_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         venue = (Spinner)findViewById(R.id.sp_venue);
         store = (Spinner)findViewById(R.id.sp_store);
         priceName = (Spinner)findViewById(R.id.sp_price_name);
+        listOfVenues = new ArrayList<String>();
+        listOfStores = new ArrayList<String>();
+        listOfPriceNames = new ArrayList<String>();
 
         ArrayAdapter<String> venueAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line,listOfVenues);
         ArrayAdapter<String> storeAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line,listOfStores);
