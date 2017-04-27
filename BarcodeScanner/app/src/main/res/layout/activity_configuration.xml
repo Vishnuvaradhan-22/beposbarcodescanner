@@ -10,6 +10,15 @@
         android:minHeight="?actionBarSize"
         android:id="@+id/action_menu_bar"
         android:background="@color/colorPrimaryDark">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/title_configure_screen"
+            android:textSize="24sp"
+            android:textColor="#ffffff"
+            android:layout_gravity="center"
+            android:id="@+id/tv_title_settings" />
     </android.support.v7.widget.Toolbar>
     <LinearLayout
         android:orientation="vertical"

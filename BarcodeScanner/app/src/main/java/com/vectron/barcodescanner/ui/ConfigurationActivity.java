@@ -38,7 +38,6 @@ public class ConfigurationActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar)findViewById(R.id.action_menu_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         venue = (Spinner)findViewById(R.id.sp_venue);
         store = (Spinner)findViewById(R.id.sp_store);
         priceName = (Spinner)findViewById(R.id.sp_price_name);
