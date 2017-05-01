@@ -2,6 +2,7 @@ package com.vectron.barcodescanner.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -11,9 +12,11 @@ public class POSSystem implements Serializable {
     private String apiAdress;
     private String printerBluetoothAddress;
     private List<Venue> venues;
+    private List<String> venueNames;
 
     public POSSystem(){
         venues = new ArrayList<Venue>();
+        venueNames = new ArrayList<String>();
     }
     public String getApiAdress() {
         return apiAdress;
@@ -38,5 +41,22 @@ public class POSSystem implements Serializable {
     public void addVenue(Venue venue){
         if(!venues.contains(venue))
             venues.add(venue);
+    }
+
+    public List<String> getVenueNames() {
+        return venueNames;
+    }
+
+    public void addVenueName(String name){
+        if(!venueNames.contains(name))
+            venueNames.add(name);
+    }
+    public void updateVenue(Venue venue){
+        Iterator venues = this.venues.iterator();
+        while(venues.hasNext()){
+            Venue venueObject = (Venue) venues.next();
+            if(venueObject.getId() == venue.getId())
+                venueObject = venue;
+        }
     }
 }
