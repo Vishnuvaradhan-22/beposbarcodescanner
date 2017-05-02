@@ -32,10 +32,8 @@ import com.vectron.barcodescanner.model.Venue;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+
 
 public class ConfigurationActivity extends AppCompatActivity {
 
@@ -198,6 +196,7 @@ public class ConfigurationActivity extends AppCompatActivity {
     private void saveData(){
         boolean validationResult = validateInput();
         if(validationResult){
+            this.mposSystem.setPrinterBluetoothAddress(printerName.getText().toString());
             SharedPreferences.Editor editor = sharedPreferences.edit();
             Gson gson = new Gson();
             String jsonData = gson.toJson(this.mposSystem);
