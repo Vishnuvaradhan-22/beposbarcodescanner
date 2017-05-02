@@ -6,4 +6,11 @@
     <string name="menu_title">Configure</string>
     <string name="footer_note">Powered by Vectron</string>
     <string name="title_configure_screen">Settings</string>
+    <string name="product_details_screen_title">Product Details</string>
+    <string name="product_name">Product Name</string>
+    <string name="product_id">Product ID</string>
+    <string name="long_name">Long Name</string>
+    <string name="price_value">Price value</string>
+    <string name="product_comment">Comment</string>
+    <string name="print">Print</string>
 </resources>
