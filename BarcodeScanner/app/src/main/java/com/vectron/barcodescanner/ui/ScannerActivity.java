@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -49,7 +50,7 @@ public class ScannerActivity extends AppCompatActivity {
         checkPosObjectInPreferences();
         scanButton = (Button)findViewById(R.id.btn_scan);
         scanButton.setOnClickListener(scanButtonListener);
-
+        sharedPreferences = getPreferences(MODE_PRIVATE);
     }
 
     private OnClickListener scanButtonListener = new OnClickListener() {
@@ -64,6 +65,9 @@ public class ScannerActivity extends AppCompatActivity {
         if(sharedPreferences.contains("POSSystem")){
             String posJson = sharedPreferences.getString("POSSystem","");
             this.mposSystem = gson.fromJson(posJson,POSSystem.class);
+        }
+        else{
+            Toast.makeText(this,"Please store API",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -108,6 +112,7 @@ public class ScannerActivity extends AppCompatActivity {
 
                     }
                 });
+                requestQueue.add(jsonObjectRequest);
             }
 
         }

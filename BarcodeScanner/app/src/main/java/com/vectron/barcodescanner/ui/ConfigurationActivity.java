@@ -179,7 +179,7 @@ public class ConfigurationActivity extends AppCompatActivity {
 
                         }
                     });
-
+                    mRequestQueue.add(jsonObjectRequest);
                 }
 
             }

@@ -34,14 +34,14 @@
             android:layout_width="match_parent"
             android:layout_height="60sp"
             android:hint="@string/product_id"
-            android:textSize="22sp"
+            android:textSize="20sp"
 
             android:id="@+id/tv_product_id" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="60sp"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:hint="@string/product_name"
             android:id="@+id/tv_product_name" />
 
@@ -49,14 +49,14 @@
             android:layout_width="match_parent"
             android:layout_height="60sp"
             android:hint="@string/long_name"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:id="@+id/tv_long_name" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="60sp"
             android:hint="@string/product_comment"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:id="@+id/tv_comment" />
 
         <EditText
@@ -64,9 +64,9 @@
             android:layout_height="60sp"
             android:hint="@string/price_value"
             android:inputType="number"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:ems="10"
-            android:id="@+id/editText2" />
+            android:id="@+id/et_price_value" />
 
         <LinearLayout
             android:orientation="horizontal"
