@@ -1,6 +1,6 @@
 package com.vectron.barcodescanner.ui;
 
-import android.app.DownloadManager;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -22,13 +22,12 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.gson.Gson;
 import com.vectron.barcodescanner.R;
-import com.vectron.barcodescanner.model.APIRequest;
+
 import com.vectron.barcodescanner.model.POSSystem;
 import com.vectron.barcodescanner.model.Store;
 import com.vectron.barcodescanner.model.Venue;
-import com.vectron.barcodescanner.utility.DataLoader;
-import com.vectron.barcodescanner.utility.WebServiceGateway;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ConfigurationActivity extends AppCompatActivity implements DataLoader {
+public class ConfigurationActivity extends AppCompatActivity {
 
     private Spinner venue;
     private Spinner store;
@@ -47,6 +46,7 @@ public class ConfigurationActivity extends AppCompatActivity implements DataLoad
     private EditText printerName;
     private Button saveButton;
 
+    private SharedPreferences sharedPreferences;
     private RequestQueue mRequestQueue;
     private POSSystem mposSystem;
     private Venue selectedVenue;
@@ -68,10 +68,13 @@ public class ConfigurationActivity extends AppCompatActivity implements DataLoad
 
         mRequestQueue.start();
 
+        mposSystem = new POSSystem();
         venue = (Spinner)findViewById(R.id.sp_venue);
         store = (Spinner)findViewById(R.id.sp_store);
         priceName = (Spinner)findViewById(R.id.sp_price_name);
-
+        printerName = (EditText)findViewById(R.id.et_printer_name);
+        sharedPreferences = getPreferences(MODE_PRIVATE);
+        checkPosObjectInPreferences();
         venue.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -90,7 +93,7 @@ public class ConfigurationActivity extends AppCompatActivity implements DataLoad
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONArray stores = response.getJSONArray("Stores");
+                            JSONArray stores = response.getJSONArray("Data");
                             for(int i=0;i<stores.length();i++){
                                 JSONObject storeJson = stores.getJSONObject(i);
                                 Store store = new Store();
@@ -134,6 +137,12 @@ public class ConfigurationActivity extends AppCompatActivity implements DataLoad
         saveButton.setOnClickListener(saveListener);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mRequestQueue.stop();
+    }
+
     private View.OnFocusChangeListener apiFocusChangeListener = new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View view, boolean hasFocus) {
@@ -146,7 +155,7 @@ public class ConfigurationActivity extends AppCompatActivity implements DataLoad
                         public void onResponse(JSONObject response) {
                             try {
                                 ConfigurationActivity.this.mposSystem.setApiAdress(ConfigurationActivity.this.api.getText().toString());
-                                JSONArray venuesArray = (JSONArray) response.get("Venues");
+                                JSONArray venuesArray = (JSONArray) response.get("Data");
                                 for(int i=0; i<venuesArray.length();i++){
                                     JSONObject venueJson = venuesArray.getJSONObject(i);
                                     Venue venue = new Venue();
@@ -187,11 +196,41 @@ public class ConfigurationActivity extends AppCompatActivity implements DataLoad
     };
 
     private void saveData(){
-
+        boolean validationResult = validateInput();
+        if(validationResult){
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            Gson gson = new Gson();
+            String jsonData = gson.toJson(this.mposSystem);
+            editor.putString("POSSystem",jsonData);
+            editor.apply();
+        }
     }
 
-    @Override
-    public void loadData(String jsonData) {
+    private boolean validateInput(){
+        String api = this.api.getText().toString();
+        String printerName = this.printerName.getText().toString();
+        if(printerName.length() > 0){
+            if(api.length() > 0){
+                return true;
+            }
+            else{
+                this.api.setError("Please enter valid API");
+                return false;
+            }
+        }
+        else{
+            this.printerName.setError("Please enter printer name");
+            return false;
+        }
+    }
 
+    private void checkPosObjectInPreferences(){
+        Gson gson = new Gson();
+        if(sharedPreferences.contains("POSSystem")){
+            String posJson = sharedPreferences.getString("POSSystem","");
+            this.mposSystem = gson.fromJson(posJson,POSSystem.class);
+            this.api.setText(mposSystem.getApiAdress());
+            this.printerName.setText(mposSystem.getPrinterBluetoothAddress());
+        }
     }
 }
