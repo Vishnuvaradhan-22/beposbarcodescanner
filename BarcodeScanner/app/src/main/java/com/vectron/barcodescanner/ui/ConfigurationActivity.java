@@ -146,7 +146,7 @@ public class ConfigurationActivity extends AppCompatActivity {
         public void onFocusChange(View view, boolean hasFocus) {
             if(!hasFocus){
                 String api = ConfigurationActivity.this.api.getText().toString();
-                if(api != null){
+                if(api.length() >0){
                     String url = api+"/"+"venues";
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,null, new Response.Listener<JSONObject>() {
                         @Override

@@ -13,7 +13,8 @@ public class Product implements Serializable {
     private String priceName;
     private long value;
     private String barcode;
-
+    private long storeId;
+    private long size;
     public long getId() {
         return id;
     }
@@ -68,5 +69,21 @@ public class Product implements Serializable {
 
     public void setBarcode(String barcode) {
         this.barcode = barcode;
+    }
+
+    public long getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(long storeId) {
+        this.storeId = storeId;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }
