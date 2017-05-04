@@ -11,12 +11,17 @@ import java.util.List;
 public class POSSystem implements Serializable {
     private String apiAdress;
     private String printerBluetoothAddress;
+    private Venue venueStored;
+    private Store storeSelected;
+    private String priceNameSelected;
     private List<Venue> venues;
     private List<String> venueNames;
 
     public POSSystem(){
         venues = new ArrayList<Venue>();
         venueNames = new ArrayList<String>();
+        venueStored = new Venue();
+        storeSelected = new Store();
     }
     public String getApiAdress() {
         return apiAdress;
@@ -52,11 +57,34 @@ public class POSSystem implements Serializable {
             venueNames.add(name);
     }
     public void updateVenue(Venue venue){
-        Iterator venues = this.venues.iterator();
-        while(venues.hasNext()){
-            Venue venueObject = (Venue) venues.next();
-            if(venueObject.getId() == venue.getId())
-                venueObject = venue;
+        for(int i=0;i<venues.size();i++){
+            if(venues.get(i).getId() == venue.getId()){
+                venues.set(i,venue);
+            }
         }
+    }
+
+    public Venue getVenueStored() {
+        return venueStored;
+    }
+
+    public void setVenueStored(Venue venueStored) {
+        this.venueStored = venueStored;
+    }
+
+    public Store getStoreSelected() {
+        return storeSelected;
+    }
+
+    public void setStoreSelected(Store storeSelected) {
+        this.storeSelected = storeSelected;
+    }
+
+    public String getPriceNameSelected() {
+        return priceNameSelected;
+    }
+
+    public void setPriceNameSelected(String priceNameSelected) {
+        this.priceNameSelected = priceNameSelected;
     }
 }

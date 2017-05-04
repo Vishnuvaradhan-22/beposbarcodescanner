@@ -3,9 +3,11 @@ package com.vectron.barcodescanner.ui;
 import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,6 +44,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private Button saveButton;
     private Button printButton;
 
+    private boolean showToast = false;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -65,9 +68,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
         longName = (TextView)findViewById(R.id.tv_long_name);
         priceValue = (EditText)findViewById(R.id.et_price_value);
 
-        sharedPreferences = getPreferences(MODE_PRIVATE);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if(product != null)
             loadData();
+        saveButton = (Button)findViewById(R.id.btn_save_product);
         saveButton.setOnClickListener(saveListener);
         //printButton.setOnClickListener(printListener);
 
@@ -76,10 +80,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private void loadData(){
         productId.setText(String.valueOf(product.getId()));
         productName.setText(product.getName());
-        if(product.getComment() != null)
+        if(!product.getComment().equals("null"))
             comment.setText(product.getComment());
         longName.setText(product.getLongName());
         priceValue.setText(String.valueOf(product.getValue()));
+        if(showToast)
+            Toast.makeText(this,"Price Value Updated",Toast.LENGTH_LONG).show();
     }
 
     private View.OnClickListener saveListener = new View.OnClickListener() {
@@ -97,17 +103,16 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 String posJson = sharedPreferences.getString("POSSystem","");
                 POSSystem posSystem = gson.fromJson(posJson,POSSystem.class);
                 RequestQueue requestQueue = Volley.newRequestQueue(this);
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, posSystem.getApiAdress() + "/product/setprice", null, new Response.Listener<JSONObject>() {
+                String postRequestUrl =  posSystem.getApiAdress() + "/product/setprice?ProductID="+product.getId()+"&StoreID="+product.getStoreId()+"&PriceName="+product.getPriceName()+"&PriceValue="+priceValue.getText().toString();
+                Log.d("Url",postRequestUrl);
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,postRequestUrl, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONObject productJson = (JSONObject) response.get("Data");
+                            JSONObject productJson = (JSONObject)response.get("data");
+                            Log.d("JSON",productJson.toString());
                             product.setId(Long.parseLong(productJson.getString("ProductID")));
                             product.setStoreId(Long.parseLong(productJson.getString("StoreID")));
-                            product.setSize(Long.parseLong(productJson.getString("Size")));
-                            product.setName(productJson.getString("Name"));
-                            product.setComment(productJson.getString("Comment"));
-                            product.setLongName(productJson.getString("LongName"));
                             product.setPriceName(productJson.getString("PriceName"));
                             product.setValue(Long.parseLong(productJson.getString("PriceValue")));
                             Gson gson = new Gson();
@@ -115,7 +120,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putString("POSSystem",newProductJson);
                             editor.apply();
-                            Toast.makeText(ProductDetailsActivity.this,"Product price updated",Toast.LENGTH_LONG).show();
+                            showToast = true;
                             loadData();
                         } catch (JSONException e) {
                             e.printStackTrace();

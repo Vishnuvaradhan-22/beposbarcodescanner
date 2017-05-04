@@ -13,4 +13,5 @@
     <string name="price_value">Price value</string>
     <string name="product_comment">Comment</string>
     <string name="print">Print</string>
+    <string name="comment_status">Not Available</string>
 </resources>
