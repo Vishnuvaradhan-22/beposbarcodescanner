@@ -10,6 +10,7 @@
         android:minHeight="?actionBarSize"
         android:id="@+id/action_menu_bar"
         android:background="@color/colorPrimaryDark">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -20,6 +21,8 @@
             android:layout_gravity="center"
             android:id="@+id/tv_title_settings" />
     </android.support.v7.widget.Toolbar>
+
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -28,7 +31,12 @@
         android:paddingRight="20sp"
         android:paddingLeft="20sp"
         android:id="@+id/ll_config_parent">
-
+        <ImageView
+            android:layout_width="200sp"
+            android:layout_height="100sp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/name_logo"
+            android:id="@+id/imageView2" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -77,13 +85,5 @@
             android:textSize="18sp"
             android:id="@+id/btn_save" />
     </LinearLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/footer_note"
-        android:textSize="18sp"
-        android:layout_marginBottom="6sp"
-        android:layout_alignBottom="@id/ll_config_parent"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/tv_footer_note" />
+
 </RelativeLayout>
