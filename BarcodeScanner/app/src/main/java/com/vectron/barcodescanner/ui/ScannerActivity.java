@@ -114,6 +114,7 @@ public class ScannerActivity extends AppCompatActivity {
                             productFound.setValue(Long.parseLong(product.getString("PriceValue")));
                             Bundle productBundle = new Bundle();
                             productBundle.putSerializable("Product", productFound);
+                            productBundle.putSerializable("POSSystem", mposSystem);
                             Intent intent = new Intent();
                             intent.setClass(ScannerActivity.this, ProductDetailsActivity.class);
                             intent.putExtra("ProductBundle", productBundle);
