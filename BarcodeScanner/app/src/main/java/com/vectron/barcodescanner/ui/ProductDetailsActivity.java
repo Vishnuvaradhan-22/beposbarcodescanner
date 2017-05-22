@@ -1,6 +1,6 @@
 package com.vectron.barcodescanner.ui;
 
-import android.app.DownloadManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -35,10 +35,10 @@ import com.google.zxing.common.BitMatrix;
 import com.vectron.barcodescanner.R;
 import com.vectron.barcodescanner.model.POSSystem;
 import com.vectron.barcodescanner.model.Product;
-import com.vectron.barcodescanner.utility.PrintImage;
 import com.zebra.sdk.comm.BluetoothConnectionInsecure;
 import com.zebra.sdk.comm.Connection;
 import com.zebra.sdk.graphics.internal.ZebraImageAndroid;
+import com.zebra.sdk.printer.PrinterStatus;
 import com.zebra.sdk.printer.ZebraPrinter;
 import com.zebra.sdk.printer.ZebraPrinterFactory;
 
@@ -109,6 +109,22 @@ public class ProductDetailsActivity extends AppCompatActivity {
         priceValue.setText(String.valueOf(product.getValue()));
         if(showToast)
             Toast.makeText(this,"Price Value Updated",Toast.LENGTH_LONG).show();
+    }
+
+    private boolean checkBluetooth(){
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if(mBluetoothAdapter == null){
+            Toast.makeText(ProductDetailsActivity.this, "Bluetooth not supported in this device", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        else{
+            if(!mBluetoothAdapter.isEnabled()) {
+                Toast.makeText(ProductDetailsActivity.this, "Please turn on bluetooth to Print", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            else
+                return true;
+        }
     }
 
     private View.OnClickListener saveListener = new View.OnClickListener() {
@@ -190,25 +206,21 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private void printImage(){
         try {
-            Bitmap productBitmap = getProductBitmap();
-            Bitmap barcodeBitmap = getBarcodeBitmap(BarcodeFormat.CODE_128, 600, 300);
 
-            sendZplOverBluetooth(this.posSystem.getPrinterBluetoothAddress(),productBitmap,barcodeBitmap);
+            boolean testBluetooth = checkBluetooth();
+
+            if(testBluetooth){
+                //Encode the barcode
+                Bitmap barcodeBitmap = getBarcodeBitmap(BarcodeFormat.CODE_128, 600, 300);
+                //Send data to the printer for printing.
+                sendZplOverBluetooth(this.posSystem.getPrinterBluetoothAddress(),barcodeBitmap);
+            }
 
         } catch (WriterException e) {
             e.printStackTrace();
         }
     }
 
-    private Bitmap getProductBitmap(){
-        Bitmap bitmap = Bitmap.createBitmap(300,30, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(30);
-        canvas.drawText(product.getName()+product.getValue(), 0,30, paint);
-        return bitmap;
-    }
 
     private Bitmap getBarcodeBitmap(BarcodeFormat format, int img_width, int img_height) throws WriterException {
         String contentsToEncode = product.getBarcode();
@@ -258,39 +270,56 @@ public class ProductDetailsActivity extends AppCompatActivity {
         return null;
     }
 
-    private  void sendZplOverBluetooth(final String theBtMacAddress, final Bitmap prodcutBitmap, final Bitmap barcodeBitmap) {
+    private  void sendZplOverBluetooth(final String theBtMacAddress, final Bitmap barcodeBitmap) {
         new Thread(new Runnable() {
             public void run() {
 
 
                 try {
                     // Instantiate insecure connection for given Bluetooth MAC Address.
-                    Connection thePrinterConn = new BluetoothConnectionInsecure(theBtMacAddress);
+                    Connection insecureBluetoothConnection = new BluetoothConnectionInsecure(theBtMacAddress);
+                    //Create an instance of the printer
+                    ZebraPrinter printer = ZebraPrinterFactory.getInstance(insecureBluetoothConnection);
+                    PrinterStatus printerStatus = printer.getCurrentStatus();
+                    if (printerStatus.isReadyToPrint) {
+                        // Initialize pritn job
+                        Looper.prepare();
 
+                        // Open the connection - physical connection is established here.
+                        insecureBluetoothConnection.open();
 
-                    // Verify the printer is ready to print
+                        String productDetailsZPL = "^XA^MNN^LL90" +
+                                "^FO90,15^ADI,30,20^FD"+product.getName()+":$"+product.getValue()+"\t\t\t"+
+                                "^FS" +
+                                "^XZ";
 
+                        String separatorZPL = "^XA^MNN^LL90^FO90,20^A0N,25,25^FD--------------------------------------^FS^XZ";
+                        // Send the data to printer as a byte array.
 
-                    // Initialize
-                    Looper.prepare();
+                        insecureBluetoothConnection.write(separatorZPL.getBytes());
+                        insecureBluetoothConnection.write(productDetailsZPL.getBytes());
+                        printer.printImage(new ZebraImageAndroid(barcodeBitmap), 0, 0, 550, 412, false);
+                        insecureBluetoothConnection.write(separatorZPL.getBytes());
 
-                    // Open the connection - physical connection is established here.
-                    thePrinterConn.open();
-
-                    // This example prints "This is a ZPL test." near the top of the label.
-                    ZebraPrinter printer = ZebraPrinterFactory.getInstance(thePrinterConn);
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    barcodeBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] byteArray = stream.toByteArray();
-                    // Send the data to printer as a byte array.
-
-                    printer.printImage(new ZebraImageAndroid(barcodeBitmap), 0, 0, 550, 412, false);
+                    }
+                    else if (printerStatus.isPaused) {
+                        Toast.makeText(ProductDetailsActivity.this, "Cannot Print because the printer is paused.", Toast.LENGTH_SHORT).show();
+                    }
+                    else if (printerStatus.isHeadOpen) {
+                        Toast.makeText(ProductDetailsActivity.this, "Please check the printer media door.", Toast.LENGTH_SHORT).show();
+                    }
+                    else if (printerStatus.isPaperOut) {
+                        Toast.makeText(ProductDetailsActivity.this, "Cannot Print because the paper is out.", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(ProductDetailsActivity.this, "Something went wrong! Please try again", Toast.LENGTH_SHORT).show();
+                    }
 
                     // Make sure the data got to the printer before closing the connection
                     Thread.sleep(500);
 
                     // Close the insecure connection to release resources.
-                    thePrinterConn.close();
+                    insecureBluetoothConnection.close();
 
                     Looper.myLooper().quit();
 
