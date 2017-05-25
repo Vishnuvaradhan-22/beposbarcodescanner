@@ -82,22 +82,28 @@ public class ProductDetailsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        Bundle productBundle = getIntent().getBundleExtra("ProductBundle");
-        this.product = (Product)productBundle.getSerializable("Product");
-        this.posSystem = (POSSystem)productBundle.getSerializable("POSSystem");
-        productId = (TextView)findViewById(R.id.tv_product_id);
-        productName = (TextView)findViewById(R.id.tv_product_name);
-        comment = (TextView)findViewById(R.id.tv_comment);
-        longName = (TextView)findViewById(R.id.tv_long_name);
-        priceValue = (EditText)findViewById(R.id.et_price_value);
+        boolean networkStatus = NetworkStatusChecker.getNetworkConnectivity(this);
+        if(networkStatus){
+            Bundle productBundle = getIntent().getBundleExtra("ProductBundle");
+            this.product = (Product)productBundle.getSerializable("Product");
+            this.posSystem = (POSSystem)productBundle.getSerializable("POSSystem");
+            productId = (TextView)findViewById(R.id.tv_product_id);
+            productName = (TextView)findViewById(R.id.tv_product_name);
+            comment = (TextView)findViewById(R.id.tv_comment);
+            longName = (TextView)findViewById(R.id.tv_long_name);
+            priceValue = (EditText)findViewById(R.id.et_price_value);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if(product != null)
-            loadData();
-        saveButton = (Button)findViewById(R.id.btn_save_product);
-        saveButton.setOnClickListener(saveListener);
-        printButton.setOnClickListener(printListener);
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if(product != null)
+                loadData();
+            saveButton = (Button)findViewById(R.id.btn_save_product);
+            saveButton.setOnClickListener(saveListener);
+            printButton = (Button)findViewById(R.id.btn_print);
+            printButton.setOnClickListener(printListener);
 
+        }
+        else
+            Toast.makeText(ProductDetailsActivity.this, "Please connect to internet", Toast.LENGTH_SHORT).show();
     }
 
     private void loadData(){
@@ -278,18 +284,30 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 try {
                     // Instantiate insecure connection for given Bluetooth MAC Address.
                     Connection insecureBluetoothConnection = new BluetoothConnectionInsecure(theBtMacAddress);
+                    Log.d("PrinterMac",theBtMacAddress);
+                    // Initialize pritn job
+                    Looper.prepare();
+
+                    // Open the connection - physical connection is established here.
+                    insecureBluetoothConnection.open();
                     //Create an instance of the printer
                     ZebraPrinter printer = ZebraPrinterFactory.getInstance(insecureBluetoothConnection);
                     PrinterStatus printerStatus = printer.getCurrentStatus();
+
                     if (printerStatus.isReadyToPrint) {
-                        // Initialize pritn job
-                        Looper.prepare();
 
-                        // Open the connection - physical connection is established here.
-                        insecureBluetoothConnection.open();
-
+                        String printProductContent = product.getName()+":$"+product.getValue();
+                        String position = "200,10";
+                        if(printProductContent.length()<15) {
+                            printProductContent = printProductContent + "\t\t";
+                            position = "250,10";
+                        }
+                        else if(printProductContent.length()>15 && printProductContent.length()<20)
+                            position = "200,10";
+                        else
+                            position = "100,10";
                         String productDetailsZPL = "^XA^MNN^LL90" +
-                                "^FO90,15^ADI,30,20^FD"+product.getName()+":$"+product.getValue()+"\t\t\t"+
+                                "^FO"+position+"^ADI,30,20^FD"+printProductContent+
                                 "^FS" +
                                 "^XZ";
 
@@ -298,7 +316,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
                         insecureBluetoothConnection.write(separatorZPL.getBytes());
                         insecureBluetoothConnection.write(productDetailsZPL.getBytes());
-                        printer.printImage(new ZebraImageAndroid(barcodeBitmap), 0, 0, 550, 412, false);
+                        printer.printImage(new ZebraImageAndroid(barcodeBitmap), -150, 0, 550, 412, false);
                         insecureBluetoothConnection.write(separatorZPL.getBytes());
 
                     }

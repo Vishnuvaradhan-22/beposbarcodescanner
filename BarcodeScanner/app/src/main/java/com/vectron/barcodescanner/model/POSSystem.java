@@ -17,6 +17,7 @@ public class POSSystem implements Serializable {
     private List<Venue> venues;
     private List<String> venueNames;
 
+
     public POSSystem(){
         venues = new ArrayList<Venue>();
         venueNames = new ArrayList<String>();
