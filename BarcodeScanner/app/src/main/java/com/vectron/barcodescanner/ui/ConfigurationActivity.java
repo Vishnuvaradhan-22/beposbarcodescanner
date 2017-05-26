@@ -69,27 +69,33 @@ public class ConfigurationActivity extends AppCompatActivity implements AdapterV
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        Cache cache = new DiskBasedCache(getCacheDir(),1024*1024);
-        Network network = new BasicNetwork(new HurlStack());
-        mRequestQueue = new RequestQueue(cache,network);
+        boolean networkStatus = NetworkStatusChecker.getNetworkConnectivity(this);
+        if(networkStatus){
+            Cache cache = new DiskBasedCache(getCacheDir(),1024*1024);
+            Network network = new BasicNetwork(new HurlStack());
+            mRequestQueue = new RequestQueue(cache,network);
 
-        mRequestQueue.start();
+            mRequestQueue.start();
 
-        mposSystem = new POSSystem();
-        selectedVenue = new Venue();
-        venue = (Spinner)findViewById(R.id.sp_venue);
-        store = (Spinner)findViewById(R.id.sp_store);
-        priceName = (Spinner)findViewById(R.id.sp_price_name);
-        printerName = (EditText)findViewById(R.id.et_printer_name);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        api = (EditText)findViewById(R.id.et_api_ip);
+            mposSystem = new POSSystem();
+            selectedVenue = new Venue();
+            venue = (Spinner)findViewById(R.id.sp_venue);
+            store = (Spinner)findViewById(R.id.sp_store);
+            priceName = (Spinner)findViewById(R.id.sp_price_name);
+            printerName = (EditText)findViewById(R.id.et_printer_name);
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            api = (EditText)findViewById(R.id.et_api_ip);
 
-        //Loads stored configuration from Shared Preferences
-        checkPosObjectInPreferences();
+            //Loads stored configuration from Shared Preferences
+            checkPosObjectInPreferences();
 
-        api.setOnFocusChangeListener(apiFocusChangeListener);
-        saveButton = (Button)findViewById(R.id.btn_save);
-        saveButton.setOnClickListener(saveListener);
+            api.setOnFocusChangeListener(apiFocusChangeListener);
+            saveButton = (Button)findViewById(R.id.btn_save);
+            saveButton.setOnClickListener(saveListener);
+        }
+        else
+            Toast.makeText(ConfigurationActivity.this, "Please connect to internet!", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -165,6 +171,10 @@ public class ConfigurationActivity extends AppCompatActivity implements AdapterV
         venueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         venue.setAdapter(venueAdapter);
         venue.setOnItemSelectedListener(this);
+        if(mposSystem.getVenueStored().getName()!= null){
+            int position = venueAdapter.getPosition(mposSystem.getVenueStored().getName());
+            venue.setSelection(position);
+        }
     }
     private void saveData(){
         boolean validationResult = validateInput();
@@ -175,6 +185,7 @@ public class ConfigurationActivity extends AppCompatActivity implements AdapterV
             String jsonData = gson.toJson(this.mposSystem);
             editor.putString("POSSystem",jsonData);
             editor.apply();
+            Toast.makeText(ConfigurationActivity.this, "Configuration Saved!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -203,20 +214,23 @@ public class ConfigurationActivity extends AppCompatActivity implements AdapterV
             this.mposSystem = gson.fromJson(posJson,POSSystem.class);
             this.api.setText(mposSystem.getApiAdress());
             this.printerName.setText(mposSystem.getPrinterBluetoothAddress());
+            loadArrayAdapter();
+
         }
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.d("Called","Item Selected");
+
         String venueSelected = (String) adapterView.getItemAtPosition(i);
         String venueId = null;
-        Iterator venues = ConfigurationActivity.this.mposSystem.getVenues().iterator();
+        Iterator venues = mposSystem.getVenues().iterator();
         while (venues.hasNext()) {
             Venue venue = (Venue) venues.next();
             if (venue.getName().equals(venueSelected)) {
                 venueId = venue.getId() + "";
                 selectedVenue = venue;
+                mposSystem.setVenueStored(venue);
                 break;
             }
         }
@@ -266,42 +280,59 @@ public class ConfigurationActivity extends AppCompatActivity implements AdapterV
         ArrayAdapter<String> storeAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,selectedVenue.getStoreNames());
         storeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         store.setAdapter(storeAdapter);
-        store.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String storeName = (String)adapterView.getItemAtPosition(i);
-                Iterator<Store> stores = selectedVenue.getStores().iterator();
-                while(stores.hasNext()){
-                    Store store = stores.next();
-                    if(store.getName() == storeName ){
-                        mposSystem.setStoreSelected(store);
-                        break;
-                    }
-                }
-            }
+        store.setOnItemSelectedListener(storeItemSelectedListener);
+        if(mposSystem.getStoreSelected().getName()!=null){
+            int position = storeAdapter.getPosition(mposSystem.getStoreSelected().getName());
+            store.setSelection(position);
+        }
+        loadPriceAdapter();
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+    private void loadPriceAdapter(){
         ArrayAdapter<String> priceAdaper = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,selectedVenue.getPriceNameList());
         priceAdaper.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         priceName.setAdapter(priceAdaper);
-        priceName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                for(Map.Entry<String,String> entry : selectedVenue.getPriceName().entrySet()){
-                    if(entry.getValue().equals((String)adapterView.getItemAtPosition(i))){
-                        mposSystem.setPriceNameSelected(entry.getKey());
-                    }
+        priceName.setOnItemSelectedListener(priceSelectedListener);
+        if(mposSystem.getPriceNameSelected() != null){
+            int position = priceAdaper.getPosition(mposSystem.getPriceNameSelected());
+            priceName.setSelection(position);
+        }
+
+    }
+
+    private AdapterView.OnItemSelectedListener storeItemSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            String storeName = (String)adapterView.getItemAtPosition(i);
+            Iterator<Store> stores = selectedVenue.getStores().iterator();
+            while(stores.hasNext()){
+                Store store = stores.next();
+                if(store.getName() == storeName ){
+                    mposSystem.setStoreSelected(store);
+                    break;
                 }
             }
+        }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
 
+        }
+    };
+
+    private AdapterView.OnItemSelectedListener priceSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            for(Map.Entry<String,String> entry : selectedVenue.getPriceName().entrySet()){
+                if(entry.getValue().equals((String)adapterView.getItemAtPosition(i))){
+                    mposSystem.setPriceNameSelected(entry.getKey());
+                }
             }
-        });
-    }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+
+        }
+    };
 }

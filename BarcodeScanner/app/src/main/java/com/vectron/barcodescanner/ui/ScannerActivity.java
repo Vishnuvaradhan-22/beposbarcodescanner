@@ -50,10 +50,16 @@ public class ScannerActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar)findViewById(R.id.action_menu_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        mposSystem = new POSSystem();
-        scanButton = (Button)findViewById(R.id.btn_scan);
-        scanButton.setOnClickListener(scanButtonListener);
+
+        boolean network = NetworkStatusChecker.getNetworkConnectivity(this);
+        if(network){
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            mposSystem = new POSSystem();
+            scanButton = (Button)findViewById(R.id.btn_scan);
+            scanButton.setOnClickListener(scanButtonListener);
+        }
+        else
+            Toast.makeText(ScannerActivity.this, "Please connect to internet!", Toast.LENGTH_SHORT).show();
     }
 
     private OnClickListener scanButtonListener = new OnClickListener() {
@@ -83,9 +89,12 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
-    private void scanBarcode(){
+    private void scanBarcode() {
+
         IntentIntegrator intentIntegrator = new IntentIntegrator(this);
+        intentIntegrator.setOrientationLocked(false);
         intentIntegrator.initiateScan();
+
     }
     public void onActivityResult(int requestCode, final int resultCode, Intent intent) {
         final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -111,9 +120,10 @@ public class ScannerActivity extends AppCompatActivity {
                             productFound.setComment(product.getString("Comment"));
                             productFound.setLongName(product.getString("LongName"));
                             productFound.setPriceName(product.getString("PriceName"));
-                            productFound.setValue(Long.parseLong(product.getString("PriceValue")));
+                            productFound.setValue(product.getString("PriceValue"));
                             Bundle productBundle = new Bundle();
                             productBundle.putSerializable("Product", productFound);
+                            productBundle.putSerializable("POSSystem", mposSystem);
                             Intent intent = new Intent();
                             intent.setClass(ScannerActivity.this, ProductDetailsActivity.class);
                             intent.putExtra("ProductBundle", productBundle);
