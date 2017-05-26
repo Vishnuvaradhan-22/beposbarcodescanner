@@ -141,8 +141,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
     };
     private void saveData(){
         String price = priceValue.getText().toString();
-        if(Long.parseLong(price) != product.getValue()){
-            product.setValue(Long.parseLong(price));
+        if(!price.equals(product.getValue())){
+            product.setValue(price);
             Gson gson = new Gson();
             if(sharedPreferences.contains("POSSystem")){
                 String posJson = sharedPreferences.getString("POSSystem","");
@@ -159,7 +159,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             product.setId(Long.parseLong(productJson.getString("ProductID")));
                             product.setStoreId(Long.parseLong(productJson.getString("StoreID")));
                             product.setPriceName(productJson.getString("PriceName"));
-                            product.setValue(Long.parseLong(productJson.getString("PriceValue")));
+                            product.setValue(productJson.getString("PriceValue"));
                             Gson gson = new Gson();
                             String newProductJson = gson.toJson(product);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -295,17 +295,22 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     PrinterStatus printerStatus = printer.getCurrentStatus();
 
                     if (printerStatus.isReadyToPrint) {
-
+                        if(!product.getValue().contains("."))
+                            product.setValue(product.getValue()+".00");
                         String printProductContent = product.getName()+":$"+product.getValue();
                         String position = "200,10";
-                        if(printProductContent.length()<15) {
+                        String size = "30,20";
+                        if(printProductContent.length()<18) {
                             printProductContent = printProductContent + "\t\t";
-                            position = "250,10";
+                            position = "220,10";
                         }
-                        else if(printProductContent.length()>15 && printProductContent.length()<20)
+                        else if(printProductContent.length()>18 && printProductContent.length()<20)
                             position = "200,10";
-                        else
+                        else{
                             position = "100,10";
+                            size = "20,15";
+                        }
+
                         String productDetailsZPL = "^XA^MNN^LL90" +
                                 "^FO"+position+"^ADI,30,20^FD"+printProductContent+
                                 "^FS" +

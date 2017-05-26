@@ -11,7 +11,7 @@ public class Product implements Serializable {
     private String longName;
     private String comment;
     private String priceName;
-    private long value;
+    private String value;
     private String barcode;
     private long storeId;
     private long size;
@@ -55,11 +55,11 @@ public class Product implements Serializable {
         this.priceName = priceName;
     }
 
-    public long getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(long value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
