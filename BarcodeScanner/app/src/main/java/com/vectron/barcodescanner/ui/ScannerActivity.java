@@ -120,7 +120,7 @@ public class ScannerActivity extends AppCompatActivity {
                             productFound.setComment(product.getString("Comment"));
                             productFound.setLongName(product.getString("LongName"));
                             productFound.setPriceName(product.getString("PriceName"));
-                            productFound.setValue(Long.parseLong(product.getString("PriceValue")));
+                            productFound.setValue(product.getString("PriceValue"));
                             Bundle productBundle = new Bundle();
                             productBundle.putSerializable("Product", productFound);
                             productBundle.putSerializable("POSSystem", mposSystem);
