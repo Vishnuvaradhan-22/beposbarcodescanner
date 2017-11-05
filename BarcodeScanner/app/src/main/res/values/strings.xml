@@ -10,8 +10,12 @@
     <string name="product_name">Product Name</string>
     <string name="product_id">Product ID</string>
     <string name="long_name">Long Name</string>
-    <string name="price_value">Price value</string>
+    <string name="price_value">Price value (AUD)</string>
     <string name="product_comment">Comment</string>
     <string name="print">Print</string>
     <string name="comment_status">Not Available</string>
+    <string name="btn_scan_label">Scan</string>
+    <string name="btn_bebin_stock_label">Begin Stock Take</string>
+    <string name="title_stock_take_label">Stock Take</string>
+    <string name="title_view_history_label">History</string>
 </resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.vectron.barcodescanner.ui.HomeScreenActivity">
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?actionBarSize"
+        android:id="@+id/action_menu_bar"
+        android:background="@color/colorPrimaryDark">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textColor="#ffffff"
+            android:layout_gravity="center"
+            android:id="@+id/tv_title" />
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ll_logo"
+        android:layout_below="@id/action_menu_bar">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="185dp"
+            android:id="@+id/imageView3"
+            android:src = "@drawable/name_logo"
+            android:layout_weight="0.80"
+            android:minHeight="120sp"
+            android:layout_marginTop="77dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_logo">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_bebin_stock_label"
+            android:minWidth="150sp"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="#fff"
+            android:id="@+id/btn_stock_take"
+            android:layout_weight="1"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View History"
+            android:background="@color/colorPrimaryDark"
+            android:textColor="#fff"
+            android:layout_marginLeft="5sp"
+            android:paddingLeft="5sp"
+            android:layout_marginStart="5sp"
+            android:paddingStart="5sp"
+            android:paddingEnd="5sp"
+            android:paddingRight="5sp"
+            android:layout_weight="1"
+            android:id="@+id/btn_view_history" />
+    </LinearLayout>
+
+</RelativeLayout>
