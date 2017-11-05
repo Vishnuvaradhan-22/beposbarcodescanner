@@ -77,15 +77,16 @@ public class ScannerActivity extends AppCompatActivity {
 
     private void checkPosObjectInPreferences(){
         Gson gson = new Gson();
-        Log.d("Boolean:",sharedPreferences.contains("POSSystem")+"");
-        if(sharedPreferences.contains("POSSystem")){
+
+        if(sharedPreferences !=null && sharedPreferences.contains("POSSystem")){
             String posJson = sharedPreferences.getString("POSSystem","");
             this.mposSystem = gson.fromJson(posJson,POSSystem.class);
             scanButton.setVisibility(View.VISIBLE);
         }
         else{
             Toast.makeText(this,"Please store API",Toast.LENGTH_LONG).show();
-            scanButton.setVisibility(View.INVISIBLE);
+            if(scanButton != null)
+                scanButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -97,67 +98,71 @@ public class ScannerActivity extends AppCompatActivity {
 
     }
     public void onActivityResult(int requestCode, final int resultCode, Intent intent) {
-        final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
-            Log.d("BarCodeScanned",scanResult.getContents());
-            String priceName = mposSystem.getPriceNameSelected().replace("PriceName_","");
-            String url =  mposSystem.getApiAdress() + "/product/"+scanResult.getContents()+"?storeId="+mposSystem.getStoreSelected().getId()+"&priceName="+priceName;
-            Log.d("PostURL",url);
-            if(mposSystem.getApiAdress() != null && mposSystem.getApiAdress().length() >0){
-                RequestQueue requestQueue = Volley.newRequestQueue(this);
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url, null, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONObject product = response;
-
-                            Product productFound = new Product();
-                            productFound.setId(Long.parseLong(product.getString("ProductID")));
-                            productFound.setStoreId(Long.parseLong(product.getString("StoreID")));
-                            productFound.setSize(Long.parseLong(product.getString("Size")));
-                            productFound.setName(product.getString("Name"));
-                            productFound.setBarcode(scanResult.getContents());
-                            productFound.setComment(product.getString("Comment"));
-                            productFound.setLongName(product.getString("LongName"));
-                            productFound.setPriceName(product.getString("PriceName"));
-                            productFound.setValue(product.getString("PriceValue"));
-                            Bundle productBundle = new Bundle();
-                            productBundle.putSerializable("Product", productFound);
-                            productBundle.putSerializable("POSSystem", mposSystem);
-                            Intent intent = new Intent();
-                            intent.setClass(ScannerActivity.this, ProductDetailsActivity.class);
-                            intent.putExtra("ProductBundle", productBundle);
-                            startActivity(intent);
-                        }catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        NetworkResponse response = error.networkResponse;
-                        if(response !=null && response.data != null){
+        if(resultCode !=0) {
+            final IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            if (scanResult != null) {
+                Log.d("BarCodeScanned", scanResult.getContents());
+                String priceName = mposSystem.getPriceNameSelected().replace("PriceName_", "");
+                String url = mposSystem.getApiAdress() + "/barcode/" + scanResult.getContents() + "?storeId=" + mposSystem.getStoreSelected().getId() + "&priceName=" + priceName;
+                Log.d("PostURL", url);
+                if (mposSystem.getApiAdress() != null && mposSystem.getApiAdress().length() > 0) {
+                    RequestQueue requestQueue = Volley.newRequestQueue(this);
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
                             try {
-                                JSONObject errorJson = new JSONObject(new String(response.data));
-                                switch(response.statusCode){
-                                    case 400:
-                                        Toast.makeText(ScannerActivity.this,errorJson.getString("message"),Toast.LENGTH_LONG).show();
-                                        break;
-                                    case 404:
-                                        Toast.makeText(ScannerActivity.this,"Product Not Found",Toast.LENGTH_LONG).show();
-                                        break;
-                                }
+                                JSONObject product = response;
+
+                                Product productFound = new Product();
+                                productFound.setId(Long.parseLong(product.getString("ProductID")));
+                                productFound.setStoreId(Long.parseLong(product.getString("StoreID")));
+                                productFound.setSize(Long.parseLong(product.getString("Size")));
+                                productFound.setName(product.getString("Name"));
+                                productFound.setBarcode(scanResult.getContents());
+                                productFound.setComment(product.getString("Comment"));
+                                productFound.setLongName(product.getString("LongName"));
+                                productFound.setPriceName(product.getString("PriceName"));
+                                productFound.setValue(product.getString("PriceValue"));
+                                Bundle productBundle = new Bundle();
+                                productBundle.putSerializable("Product", productFound);
+                                productBundle.putSerializable("POSSystem", mposSystem);
+                                Intent intent = new Intent();
+                                intent.setClass(ScannerActivity.this, ProductDetailsActivity.class);
+                                intent.putExtra("ProductBundle", productBundle);
+                                startActivity(intent);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
                         }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            NetworkResponse response = error.networkResponse;
+                            if (response != null && response.data != null) {
+                                try {
+                                    JSONObject errorJson = new JSONObject(new String(response.data));
+                                    switch (response.statusCode) {
+                                        case 400:
+                                            Toast.makeText(ScannerActivity.this, errorJson.getString("message"), Toast.LENGTH_LONG).show();
+                                            break;
+                                        case 404:
+                                            Toast.makeText(ScannerActivity.this, "Product Not Found", Toast.LENGTH_LONG).show();
+                                            break;
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
 
-                    }
-                });
-                requestQueue.add(jsonObjectRequest);
+                        }
+                    });
+                    requestQueue.add(jsonObjectRequest);
+                }
+
             }
-
         }
+        else
+            Toast.makeText(ScannerActivity.this,"No barcode scanned",Toast.LENGTH_LONG).show();
     }
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater menuInflater = getMenuInflater();

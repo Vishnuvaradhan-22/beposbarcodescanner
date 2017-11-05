@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.vectron.barcodescanner.ui.ScannerActivity">
+    tools:context="com.vectron.barcodescanner.ui.StockTakeActivity">
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,48 +14,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/app_name"
+            android:text="@string/title_stock_take_label"
             android:textSize="24sp"
             android:textColor="#ffffff"
             android:layout_gravity="center"
             android:id="@+id/tv_title" />
     </android.support.v7.widget.Toolbar>
 
-
     <LinearLayout
-        android:orientation="vertical"
-        android:id="@+id/ll_scanner_parent"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="10sp"
         android:layout_below="@id/action_menu_bar">
 
-        <ImageView
-            android:layout_width="250sp"
-            android:layout_height="250sp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/barcode"
-            android:layout_marginTop="60sp"
-            android:id="@+id/imageView" />
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="55sp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_weight="0.6"
+            android:hint="Barcode Number"
+            android:id="@+id/tv_barcode" />
 
         <Button
-            android:layout_width="100sp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/btn_scan_label"
-            android:textColor="#ffffff"
-            android:layout_marginTop="20sp"
-            android:textSize="20sp"
+            android:text="Scan"
             android:background="@color/colorPrimaryDark"
-            android:id="@+id/btn_scan" />
-
+            android:textColor="#fff"
+            android:layout_weight="0.4"
+            android:id="@+id/button" />
     </LinearLayout>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/footer_note"
-        android:textSize="18sp"
-        android:layout_marginBottom="6sp"
-        android:layout_alignBottom="@id/ll_scanner_parent"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/tv_footer_note" />
+
 </RelativeLayout>
